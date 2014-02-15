@@ -22,7 +22,7 @@ else:
         os.system("chgrp -R ftpusers /var/www/%s" % nombre)
         os.system("chmod -R 775 /var/www/%s" % nombre)
 #Creacion del index.html
-        os.system("echo \<html\>\<head\>\<title\>Bienvenido\</title\>\<body\>\<center\>\<h1\>La pagina %s se encuentra en construccion\</h1\>\</center\>\</body\>\</html\> > /var/www/%s/index.html" % (d$
+        os.system("echo \<html\>\<head\>\<title\>Bienvenido\</title\>\<body\>\<center\>\<h1\>La pagina %s se encuentra en construccion\</h1\>\</center\>\</body\>\</html\> > /var/www/%s/index.html" % (dominio,nombre))
 #Creacion del virtualhost
         host=open("ficheros/plantillavirtualhost","r")
         modif=host.read()
@@ -59,6 +59,21 @@ else:
         leccontra=contra.read()
         contra.close()
         print "La contrasena generada para el usuario mysql es: %s" % leccontra
-        varbase="create database bd_%s" % nombre
+        varbase="create database %s" % nombre
         cursor.execute(varbase)
-        varusu="grant all privileges
+        varusu="grant all privileges on %s.* to my%s@localhost identified by '%s'" % (nombre,nombre,leccontra)
+        cursor.execute(varusu)
+#DNS
+        fdns=open("fichero/plantilladnsd","r")
+        fdns2=open("fichero/plantilladns","r")
+        var=fdns.read()
+        var2=fdns2.read()
+        fdns.close()
+        fdns2.close()
+        var2=var2.replace("@dom@","%s" % dominio)
+        fdns=open("/var/cache/bind/bd.%s" % (dominio),"w")
+        fdns.write(var2)
+        fdns.close()
+        os.system("service bind9 restart")
+#Cierre de conexion de base de datos
+        bd.close()

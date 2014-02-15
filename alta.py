@@ -1,4 +1,3 @@
-
 import sys
 import os
 import MySQLdb
@@ -71,9 +70,14 @@ else:
         fdns.close()
         fdns2.close()
         var2=var2.replace("@dom@","%s" % dominio)
+        fdns2=open("/etc/bind/named.conf.local","a")
+        fdns2.write(var2)
+        fdns2.close()
+        var=var.replace("@dom@","%s" % dominio)
         fdns=open("/var/cache/bind/bd.%s" % (dominio),"w")
-        fdns.write(var2)
+        fdns.write(var)
         fdns.close()
         os.system("service bind9 restart")
+
 #Cierre de conexion de base de datos
         bd.close()

@@ -1,6 +1,8 @@
 import sys
 import os
 import MySQLdb
+import string
+from random import choice
 
 nombre=raw_input("Introduzca el nombre de usuario:")
 dominio=raw_input("Introduzca la direccion del dominio:")
@@ -35,10 +37,9 @@ else:
         os.system("service apache2 reload")
 
 #FTP
-        os.system("pwgen -c > contra")
-        contra=open("contra","r")
-        leccontra=contra.read()
-        contra.close()
+        def GenPasswd(n):
+                return ''.join([choice(string.letters + string.digits) for i in range(n)])
+        leccontra = GenPasswd(8)
         print "La contrasena generada para el usuario ftp es: %s" % leccontra
         uid=open("uid","r")
         uid2=uid.read()
@@ -50,21 +51,20 @@ else:
         uid2=str(uid2)
         uid.write(uid2)
         uid.close()
-        insert="insert into users values ('%s', PASSWORD('%s'),'%s','%s',''/var/www/%s','%s','/bin/false')" % (nombre,leccontra,uid2,500,nombre,dominio)
-
+        insert="INSERT INTO users VALUES ('%s',PASSWORD('%s'),%s,500,'/var/www/%s','%s','/bin/false');" % (nombre,leccontra,uid2,nombre,dominio)
+        cursor.execute(insert)
 #MySQL
-        os.system("pwgen -c > contra")
-        contra=open("contra","r")
-        leccontra=contra.read()
-        contra.close()
+        def GenPasswd(n):
+                return ''.join([choice(string.letters + string.digits) for i in range(n)])
+        leccontra = GenPasswd(8)
         print "La contrasena generada para el usuario mysql es: %s" % leccontra
         varbase="create database %s" % nombre
         cursor.execute(varbase)
-        varusu="grant all privileges on %s.* to my%s@localhost identified by '%s'" % (nombre,nombre,leccontra)
-        cursor.execute(varusu)
+        varbase="grant all privileges on %s.* to my%s@localhost identified by '%s';" % (nombre,nombre,leccontra)
+        cursor.execute(varbase)
 #DNS
-        fdns=open("fichero/plantilladnsd","r")
-        fdns2=open("fichero/plantilladns","r")
+        fdns=open("ficheros/plantilladns","r")
+        fdns2=open("ficheros/plantilladnsd","r")
         var=fdns.read()
         var2=fdns2.read()
         fdns.close()
@@ -77,7 +77,11 @@ else:
         fdns=open("/var/cache/bind/bd.%s" % (dominio),"w")
         fdns.write(var)
         fdns.close()
-        os.system("service bind9 restart")
-
-#Cierre de conexion de base de datos
+        os.system("service bind9 reload")
+#Se cierra la conexion a la base de datos
+        bd.commit()
         bd.close()
+
+
+
+

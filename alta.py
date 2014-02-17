@@ -74,7 +74,7 @@ else:
         fdns2.write(var2)
         fdns2.close()
         var=var.replace("@dom@","%s" % dominio)
-        fdns=open("/var/cache/bind/bd.%s" % (dominio),"w")
+        fdns=open("/var/cache/bind/db.%s" % (dominio),"w")
         fdns.write(var)
         fdns.close()
         os.system("service bind9 reload")

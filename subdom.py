@@ -32,6 +32,7 @@ else:
         host.write(modif)
         host.close
         os.system("a2ensite %s" % subdominio)
+        os.system("cp ficheros/htaccess /var/www/%s/subdominio/%s/.htaccess" % (nombre,subdominio))
         os.system("service apache2 reload")
 #Se cierra la conexion a la base de datos
         bd.commit()
